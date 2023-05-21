@@ -1,0 +1,28 @@
+
+admin=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+users_list=$(cat ./DB_admins.db)
+
+if [[ $admin -ne 1 ]]
+then
+	echo " only admin can delete database user "
+fi
+
+if [[ $admin -eq 1 ]]
+then
+#	read -p "please enter the user" user
+	PS3="Pleas Choose the User you want to delete ="
+	select user in $users_list
+	do
+		if [[ $user == "oracle" ]]
+		then
+		echo "Oracle cannot be deleted "
+
+		else
+		sed -i "/^$user/d" ./DB_admins.db 
+		echo $user " deleted successfully"
+
+		fi
+		break
+
+	done
+fi

@@ -1,0 +1,62 @@
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+db_names=$(ls ./DataBases)
+
+if [[ $exist -eq 1 ]]
+then
+
+	PS3="Pleas Choose DB ="
+	select db in $db_names
+	do
+		Chk_owner=$(cat ./DataBases/$db/owner.txt | grep $USER | wc -l)
+		tab_list=$(ls -1 ./DataBases/$db | tr '\n' '\n' | grep .table)
+		
+
+		if [[ $Chk_owner -eq 1 ]]
+		then
+			PS3="Pleas Choose Table ="
+			select t in $tab_list
+			do
+				
+				 col_no=$(awk -F '[\t,]' '{print NF}' ./DataBases/$db/$t | head -n 1)
+				 row=""
+				
+				  for col in $(seq 1 $col_no)
+				  do	
+					col_name=$(cut -d , -f $col ./DataBases/$db/$t | head -n 1)
+					read -p "Enter Value of ${col_name} column =" value
+					
+					if [[ $col -lt $col_no ]]
+					then	
+						
+						#check if the ID is unique.
+						unique_id=$(grep -w $value ./DataBases/$db/$t | wc -l)
+						if [[ $col -eq 1 ]] 
+						then	
+							while [ $unique_id -eq 1 ] 
+							do
+								read -p "Value of ID column must be unique, try again =" value
+								unique_id=$(grep -w $value ./DataBases/$db/$t | wc -l)
+							done
+						fi
+
+						row=$row$value"," 
+						
+					elif [[ $col -eq $col_no ]]
+					then
+						row=$row$value
+						echo $row >> ./DataBases/$db/$t
+						echo "row (${row})"
+						echo "is inserted successfully into $t"
+					fi
+				  done
+		        
+  			  break
+			done
+        else
+             echo "Only the Owner of the DB can insert data into the table."
+        fi
+		break
+	done
+else
+        echo "Current User is Not an Admin, Not Allowed to insert data into a table."
+fi

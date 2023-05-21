@@ -1,0 +1,27 @@
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+db_names=$(ls ./DataBases)
+
+
+if [[ $exist -eq 1 ]]
+then
+	
+	PS3="Please Choose the DB you want to delete: "
+
+	select db in $db_names
+	do
+		Chk_owner=$(cat ./DataBases/$db/owner.txt | grep $USER | wc -l)
+		if [[ $Chk_owner -eq 1 ]]
+		then
+			rm -rf ./DataBases/$db
+			echo "DataBase $db deleted successfully"
+		else
+			echo "Only the Owner of the DB can delete it."
+		fi
+		break
+
+	
+	done
+else
+        echo "Current User is Not an Admin, Not Allowed to Delete DataBase"
+fi
+

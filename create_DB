@@ -1,0 +1,18 @@
+
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+
+if [[ $exist -eq 1 ]]
+then
+
+	read -p "please enter DB name = " DB_name
+
+	mkdir -p ./DataBases/"${DB_name}DB"
+	chmod 777 ./DataBases/"${DB_name}DB"
+
+	touch ./DataBases/"${DB_name}DB"/owner.txt
+	chmod 777 ./DataBases/"${DB_name}DB"/owner.txt
+	echo $USER >> ./DataBases/"${DB_name}DB"/owner.txt
+	echo "the ${DB_name}DB is created successfully"
+else 
+	echo "Current User is Not an Admin, Not Allowed to Create a DataBase"
+fi

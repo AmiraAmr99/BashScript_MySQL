@@ -1,0 +1,49 @@
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+db_names=$(ls ./DataBases)
+
+if [[ $exist -eq 1 ]]
+then
+
+	PS3="Pleas Choose DB ="
+	select db in $db_names
+	do
+		Chk_owner=$(cat ./DataBases/$db/owner.txt | grep $USER | wc -l)
+	
+		if [[ $Chk_owner -eq 1 ]]
+		then
+			read -p "Enter The Table Name = " tab_name
+			tab_isExist=$(find ./DataBases/$db -name "${tab_name}.table" | wc -l)	
+	
+       		  if [[ $tab_isExist -eq 0 ]]
+		  then
+			touch ./DataBases/$db/"${tab_name}.table"
+			chmod 777 ./DataBases/$db/"${tab_name}.table"
+			read -p "Enter The Number of Columns = "  col_no
+			header=""
+			
+			for col in $(seq 1 $col_no)
+			do	
+				read -p "Enter Column no. $col  Name =" col_name
+				if [[ $col -lt $col_no ]]
+				then			
+					header=$header$col_name","
+				elif [[ $col -eq $col_no ]]
+				then
+				header=$header$col_name
+				echo $header >> ./DataBases/$db/"${tab_name}.table"
+				echo "${tab_name}.table is created in ${db} successfully"
+				fi
+			done
+		  elif [[ $tab_isExist -eq 1 ]]
+		  then
+			 echo "this table already exists."
+		  fi
+		else
+			echo "Only the Owner of the DB can create a table."
+		fi
+		break
+	done
+else
+        echo "Current User is Not an Admin, Not Allowed to Create a Table."
+fi
+

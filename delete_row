@@ -1,0 +1,68 @@
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+
+if [[ $exist -eq 1 ]]
+then
+
+# Show all available databases in the /MySQL/Databases path
+PS3="Select a database:"
+select db in $(ls ./DataBases) 
+do
+
+  Chk_owner=$(cat ./DataBases/$db/owner.txt | grep $USER | wc -l)
+  if [[ $Chk_owner -eq 1 ]]
+  then
+
+	IsEmpty=$(ls ./DataBases/$db | wc -l)
+	if [ $IsEmpty -eq 0 ]
+	then
+		echo "this DataBases is Empty"
+	else
+		tab_list=$(ls -1 ./DataBases/$db | tr '\n' '\n' | grep .table)
+		# Show all available tables in the selected database
+		PS3="Select a table:"
+		select table in $tab_list 
+		do
+			line_no=$(cat ./DataBases/$db/$table | wc -l) 
+			if [ $line_no -eq 1 ]
+			then
+				echo "This Table Is Empty" 
+			else
+				# Ask the user to enter a string to search for in the table
+				read -p "Enter a string to search for: " search
+					
+					if [[ $(grep -w $search ./DataBases/$db/$table | wc -l) -eq 0 ]]
+					then
+						echo 'No matching'
+					fi
+				
+				# Delete all rows that contain the specified string
+				sed -i "/\<$search\>/d" ./DataBases/$db/$table
+
+				# Show the updated table
+				cat ./DataBases/$db/$table
+			
+			fi
+		 break
+		done
+	
+	fi
+  else
+    echo "Only the Owner of the DB can delete data from a table."
+  fi
+
+  break
+done
+
+else
+        echo "Current User is Not an Admin, Not Allowed to delete data from a Table."
+fi
+
+	
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+
+Isadmin=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+
+if [[ $Isadmin -eq 0 ]]
+then
+echo " only admin create database user "
+
+elif [[ $Isadmin -eq 1 ]]
+then
+
+read -p "Enter User Name =" admin
+
+fi
+
+ifexist=$(cat ./DB_admins.db | grep $admin |wc -l)
+
+if [[ $ifexist -eq 1 ]]
+then
+echo "the user already exists "
+
+elif [[ $ifexist -ne 1 ]]
+then
+echo "$admin" >> ./DB_admins.db
+echo " The User ${admin} is Created successfully "
+fi
+

@@ -1,0 +1,45 @@
+exist=$(cat ./DB_admins.db | grep -w $USER | wc -l)
+db_names=$(ls ./DataBases)
+
+if [[ $exist -eq 1 ]]
+then
+
+	PS3="Pleas Choose DB ="
+	select db in $db_names
+	do
+		Chk_owner=$(cat ./DataBases/$db/owner.txt | grep $USER | wc -l)
+		tab_list=$(ls -1 ./DataBases/$db | tr '\n' '\n' | grep .table)
+
+		if [[ $Chk_owner -eq 1 ]]
+		then		 
+				PS3="Pleas Choose Table ="
+				select t in $tab_list
+				do
+					break
+				done
+				   PS3="Pleas Choose your request ="
+				   select y in "To Show The Table content" "To Search for a keyword"
+				   do
+					if [[ $y == "To Show The Table content" ]]
+					then
+						 cat ./DataBases/$db/$t			
+					elif [[ $y == "To Search for a keyword" ]]
+					then
+					 read -p "Please Enter the Searching Keyword = " kw
+					 grep -w $kw ./DataBases/$db/$t
+						if [[ $(grep -w $kw ./DataBases/$db/$t | wc -l) -eq 0 ]]
+						then
+							echo 'No matching'
+						fi
+					fi
+					break
+				   done	
+		else
+			echo "Only the Owner of the DB can see a table."
+		fi
+	   break
+	done
+else
+        echo "Current User is Not an Admin, Not Allowed to select data from a Table."
+fi
+
